@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">Leaderboard</h2>
+    <p class="text-slate-500 text-sm">Urutan berdasarkan total skor tertinggi</p>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-slate-600">
+        <tr>
+          <th class="px-4 py-3 text-left">🏅 Peringkat</th>
+          <th class="px-4 py-3 text-left">Akun</th>
+          <th class="px-4 py-3 text-center">Quiz 1</th>
+          <th class="px-4 py-3 text-center">Quiz 2</th>
+          <th class="px-4 py-3 text-center">Quiz 3</th>
+          <th class="px-4 py-3 text-center">Quiz 4</th>
+          <th class="px-4 py-3 text-center">Total</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for s in items %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium">
+            {% set rank = loop.index %}
+            {% if rank == 1 %}<span class="text-yellow-600 font-bold">#1</span>
+            {% elif rank == 2 %}<span class="text-gray-600 font-bold">#2</span>
+            {% elif rank == 3 %}<span class="text-amber-700 font-bold">#3</span>
+            {% else %}#{{ rank }}{% endif %}
+          </td>
+          <td class="px-4 py-3">{{ s.user.username if s.user else ('User #' ~ s.user_id) }}</td>
+          <td class="px-4 py-3 text-center">{{ s.quiz_1 }}</td>
+          <td class="px-4 py-3 text-center">{{ s.quiz_2 }}</td>
+          <td class="px-4 py-3 text-center">{{ s.quiz_3 }}</td>
+          <td class="px-4 py-3 text-center">{{ s.quiz_4 }}</td>
+          <td class="px-4 py-3 text-center font-semibold text-slate-800">{{ s.total }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="px-4 py-6 text-center text-slate-500">
+            Belum ada skor.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

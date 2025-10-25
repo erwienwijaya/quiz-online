@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Prakiraan Cuaca{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
+
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">Prakiraan Cuaca</h2>
+    <p class="text-slate-500 text-sm">
+      Tampilkan prakiraan untuk <strong>hari ini</strong>, <strong>besok</strong>, dan <strong>lusa</strong>.
+      Negara: <span class="font-mono text-slate-700">ID</span>
+    </p>
+  </div>
+
+  <!-- Form -->
+  <form id="frm" class="flex gap-2 mb-5 items-center">
+    <input id="city" type="text" placeholder="Nama kota (misal: Bandung)"
+           class="flex-1 px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    <button id="btn" type="submit"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-60">
+      <i class="fas fa-search mr-1"></i> Cari
+    </button>
+  </form>
+
+  <!-- Alert -->
+  <div id="msg" class="hidden text-sm text-center mb-4 py-2 rounded-md"></div>
+
+  <!-- Hasil -->
+  <div id="result" class="hidden">
+    <div class="mb-3">
+      <h3 id="location" class="text-lg font-semibold text-slate-800"></h3>
+    </div>
+    <div id="cards" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const frm = document.getElementById('frm');
+  const city = document.getElementById('city');
+  const btn  = document.getElementById('btn');
+  const msg  = document.getElementById('msg');
+  const result = document.getElementById('result');
+  const locationEl = document.getElementById('location');
+  const cards = document.getElementById('cards');
+
+  function showMsg(text, type='info'){
+    msg.textContent = text;
+    msg.className = 'text-sm text-center mb-4 py-2 rounded-md border ' + (
+      type==='success' ? 'bg-green-100 text-green-700 border-green-300'
+      : type==='error' ? 'bg-red-100 text-red-700 border-red-300'
+      : 'bg-blue-100 text-blue-700 border-blue-300'
+    );
+  }
+  function hideMsg(){ msg.className='hidden'; msg.textContent=''; }
+  function setLoading(v){ btn.disabled = v; btn.innerHTML = v ? '<i class="fas fa-spinner fa-spin mr-2"></i> Memuat...' : '<i class="fas fa-search mr-1"></i> Cari'; }
+
+  function dayLabel(idx){
+    return idx===0 ? 'Hari ini' : idx===1 ? 'Besok' : 'Lusa';
+  }
+
+  frm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    hideMsg(); result.classList.add('hidden');
+
+    const q = (city.value || '').trim();
+    if (!q){ showMsg('Masukkan nama kota.', 'error'); return; }
+
+    setLoading(true);
+    try{
+      const res = await fetch(`/api/weather?city=${encodeURIComponent(q)}`, { credentials:'same-origin' });
+      const data = await res.json().catch(()=> ({}));
+      if (!res.ok){
+        showMsg(data.error || data.msg || 'Gagal mengambil data cuaca.', 'error');
+        return;
+      }
+
+      // Render lokasi
+      locationEl.textContent = `${data.city}, ${data.country}`;
+
+      // Render 3 kartu
+      cards.innerHTML = '';
+      (data.days || []).forEach((d, idx)=>{
+        const card = document.createElement('div');
+        card.className = 'rounded-lg border border-slate-200 p-4';
+        card.innerHTML = `
+          <div class="text-slate-500 text-xs uppercase tracking-wide mb-1">${dayLabel(idx)} • ${d.day_name}</div>
+          <div class="text-slate-800 font-semibold mb-2">${new Date(d.date_iso).toLocaleDateString()}</div>
+          <div class="text-slate-600 text-sm mb-3">
+            ${d.summary.main ? `<span class="font-medium">${d.summary.main}</span> — ${d.summary.desc}` : ''}
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-slate-50 rounded-md p-2">
+              <div class="text-xs text-slate-500 mb-1">Pagi</div>
+              <div class="text-lg font-semibold">${d.temp.morning}&deg;C</div>
+            </div>
+            <div class="bg-slate-50 rounded-md p-2">
+              <div class="text-xs text-slate-500 mb-1">Siang</div>
+              <div class="text-lg font-semibold">${d.temp.day}&deg;C</div>
+            </div>
+            <div class="bg-slate-50 rounded-md p-2">
+              <div class="text-xs text-slate-500 mb-1">Malam</div>
+              <div class="text-lg font-semibold">${d.temp.evening}&deg;C</div>
+            </div>
+          </div>
+        `;
+        cards.appendChild(card);
+      });
+
+      result.classList.remove('hidden');
+      showMsg('Data diperbarui.', 'success');
+      setTimeout(hideMsg, 1000);
+    }catch(e){
+      console.error(e);
+      showMsg('Tidak dapat terhubung ke server.', 'error');
+    }finally{
+      setLoading(false);
+    }
+  });
+
+  city.focus();
+})();
+</script>
+{% endblock %}

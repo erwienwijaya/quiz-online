@@ -1,0 +1,77 @@
+<nav class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      
+      <!-- Logo -->
+      <a href="/" class="text-xl font-semibold text-blue-600 hover:text-blue-700">
+        <i class="fas fa-user-graduate text-xl text-slate-800"></i> Quiz<span class="text-slate-800">Online</span>
+      </a>
+
+      <!-- Menu center -->
+        <div class="flex items-center space-x-4">
+          {% if current_user %}
+            <a href="{{ url_for('leaderboard_page') }}"
+              class="px-4 py-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition">
+              <i class="fa-solid fa-trophy mr-1"></i>Leaderboard
+            </a>
+            <a href="{{ url_for('quiz_page') }}"
+              class="px-4 py-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition">
+              <i class="fa-solid fa-file-pen mr-1"></i></i>Quiz
+            </a>
+          {% endif %}
+        </div>
+      
+
+      <!-- Menu right -->
+      <div class="flex items-center space-x-4">
+          {% if current_user %}
+            <span class="text-slate-600 hidden sm:inline">Hi, {{ current_user.username }}</span>
+            <button id="btn-logout"
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+              <i class="fa-solid fa-power-off mr-1"></i>Logout
+            </button>
+          {% else %}
+            <a href="{{ url_for('login_page') }}"
+              class="px-4 py-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition">
+              Login
+            </a>
+            <a href="{{ url_for('register_page') }}"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+              <i class="fa-solid fa-user-pen mr-1"></i>Registrasi
+            </a>
+          {% endif %}
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<script>
+(function () {
+  const btn = document.getElementById('btn-logout');
+  if (!btn) return;
+
+  function getCookie(name) {
+    const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return m ? decodeURIComponent(m[2]) : null;
+  }
+
+  btn.addEventListener('click', async () => {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      const csrf = getCookie('csrf_access_token'); 
+      if (csrf) headers['X-CSRF-TOKEN'] = csrf;
+
+      const res = await fetch('/api/logout', {
+        method: 'POST',
+        headers,
+        credentials: 'same-origin'
+      });
+
+      window.location.href = '/';
+    } catch (e) {
+      window.location.reload();
+    }
+  });
+})();
+</script>

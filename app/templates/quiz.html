@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Kuis{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
+
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">Kuis</h2>
+    <p class="text-slate-500 text-sm">Pilih salah satu kuis. Jika sudah ditempuh, tombol akan nonaktif.</p>
+  </div>
+
+  <!-- Flash-like message -->
+  <div id="msg" class="hidden text-sm text-center mb-4 py-2 rounded-md"></div>
+
+  <!-- quiz buttons -->
+  <div id="quiz-buttons" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <button data-quiz="1" class="quiz-btn px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Quiz<i class="fa-solid fa-1 text-white ml-2"></i></button>
+    <button data-quiz="2" class="quiz-btn px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Quiz<i class="fa-solid fa-2 text-white ml-2"></i></button>
+    <button data-quiz="3" class="quiz-btn px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Quiz<i class="fa-solid fa-3 text-white ml-2"></i></button>
+    <button data-quiz="4" class="quiz-btn px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">Quiz<i class="fa-solid fa-4 text-white ml-2"></i></button>
+  </div>
+
+  <!-- rendering questions -->
+  <div id="quiz-area" class="hidden">
+    <div class="flex items-center justify-between mb-4">
+      <h3 id="quiz-title" class="text-xl font-semibold text-slate-800">Mengerjakan Kuis</h3>
+      <button id="btn-cancel" class="text-slate-600 hover:text-red-600 text-sm underline">Batal</button>
+    </div>
+    <form id="quiz-form" class="space-y-5">
+      <div id="questions"></div>
+      <div class="pt-2">
+        <button id="btn-submit" type="submit" class="w-full sm:w-auto px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
+          <i class="fas fa-paper-plane mr-1"></i> Kumpulkan Jawaban
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const msgEl   = document.getElementById('msg');
+  const area    = document.getElementById('quiz-area');
+  const titleEl = document.getElementById('quiz-title');
+  const qWrap   = document.getElementById('questions');
+  const btns    = Array.from(document.querySelectorAll('.quiz-btn'));
+  const btnSubmit = document.getElementById('btn-submit');
+  const btnCancel = document.getElementById('btn-cancel');
+
+  let currentQuiz = null;
+  let currentQuestions = []; // [{id,text,option_a..d}]
+
+  function getCookie(name){
+    const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return m ? decodeURIComponent(m[2]) : null;
+}
+
+  function showMsg(text, type='info') {
+    msgEl.textContent = text;
+    msgEl.classList.remove('hidden');
+    msgEl.className = 'text-sm text-center mb-4 py-2 rounded-md border ' + (
+      type==='success' ? 'bg-green-100 text-green-700 border-green-300'
+      : type==='error' ? 'bg-red-100 text-red-700 border-red-300'
+      : 'bg-blue-100 text-blue-700 border-blue-300'
+    );
+  }
+  function clearMsg(){ msgEl.className='hidden'; msgEl.textContent=''; }
+
+  async function loadStatus(){
+    clearMsg();
+    try{
+      const res = await fetch('/api/quiz/status', { credentials:'same-origin' });
+      const data = await res.json().catch(()=> ({}));
+      if (!res.ok) { showMsg(data.error || data.msg || 'Gagal mengambil status kuis.', 'error'); return; }
+      
+      btns.forEach(b=>{
+        const n = parseInt(b.dataset.quiz,10);
+        b.disabled = !!(data.completed && data.completed[n]);
+      });
+    }catch(e){
+      showMsg('Tidak dapat terhubung ke server.', 'error');
+    }
+  }
+
+  function renderQuestions(list){
+    qWrap.innerHTML = '';
+    list.forEach((q,idx)=>{
+      const id = q.id;
+      const block = document.createElement('div');
+      block.className = 'border border-slate-200 rounded-lg p-4 mb-4';
+      block.innerHTML = `
+        <div class="font-medium mb-2">${idx+1}. ${escapeHtml(q.text)}</div>
+        <div class="space-y-2">
+          ${['a','b','c','d'].map(opt => `
+            <label class="flex items-start space-x-2">
+              <input type="radio" name="q_${id}" value="${opt}" class="mt-1">
+              <span><span class="font-semibold uppercase">${opt})</span> ${escapeHtml(q['option_'+opt])}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+      qWrap.appendChild(block);
+    });
+  }
+
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  btns.forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    if (b.disabled) return;
+    currentQuiz = parseInt(b.dataset.quiz,10);
+    titleEl.textContent = 'Mengerjakan Kuis ' + currentQuiz;
+    clearMsg();
+
+    try{
+      // 🔐 siapkan headers dengan CSRF dari cookie JWT
+      const headers = { 'Content-Type': 'application/json' };
+      const csrf = getCookie('csrf_access_token');
+      if (csrf) headers['X-CSRF-TOKEN'] = csrf;
+
+      const res = await fetch(`/api/quiz/${currentQuiz}/start`, {
+        method:'POST',
+        headers,
+        credentials:'same-origin'
+      });
+
+      const data = await res.json().catch(()=> ({}));
+      if (!res.ok) { showMsg(data.error || data.msg || 'Gagal memulai kuis.', 'error'); return; }
+      currentQuestions = data.questions || [];
+      if (!currentQuestions.length){ showMsg('Soal belum tersedia.', 'error'); return; }
+      renderQuestions(currentQuestions);
+      area.classList.remove('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }catch(e){
+      showMsg('Tidak dapat terhubung ke server.', 'error');
+    }
+  });
+});
+
+
+  btnCancel.addEventListener('click', ()=>{
+    area.classList.add('hidden');
+    currentQuiz = null;
+    currentQuestions = [];
+  });
+
+  document.getElementById('quiz-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if (!currentQuiz || !currentQuestions.length) return;
+
+    
+    const answers = {};
+    for (const q of currentQuestions){
+      const chosen = document.querySelector(`input[name="q_${q.id}"]:checked`);
+      answers[q.id] = chosen ? chosen.value : null;
+    }
+
+    const headers = {'Content-Type':'application/json'};
+    const csrf = (document.cookie.match(/(^| )csrf_access_token=([^;]+)/)||[])[2];
+    if (csrf) headers['X-CSRF-TOKEN'] = decodeURIComponent(csrf);
+
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...';
+    clearMsg();
+
+    try{
+      const res = await fetch(`/api/quiz/${currentQuiz}/submit`, {
+        method:'POST',
+        headers,
+        credentials:'same-origin',
+        body: JSON.stringify({ answers })
+      });
+      const data = await res.json().catch(()=> ({}));
+      if (res.ok){
+        showMsg(`Skor kamu: ${data.score} / 100. Mengalihkan ke leaderboard...`, 'success');
+        setTimeout(()=> { window.location.href = '/leaderboard'; }, 900);
+      }else{
+        showMsg(data.error || data.msg || 'Gagal menyimpan hasil kuis.', 'error');
+      }
+    }catch(e){
+      showMsg('Tidak dapat terhubung ke server.', 'error');
+    }finally{
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Kumpulkan Jawaban';
+    }
+  });
+
+  loadStatus();
+})();
+</script>
+{% endblock %}

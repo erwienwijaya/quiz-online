@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+        <div class="mb-6 text-center">
+            <i class="fas fa-universal-access text-blue-500 text-6xl mb-2"></i>
+            <h2 class="text-2xl font-bold text-center text-slate-700 mb-2">Registrasi Quiz Online</h2>
+        </div>
+        
+
+        <div id="msg" class="text-center mb-3 hidden"></div>
+
+        <form id="form-register" class="space-y-4" novalidate>
+            <div>
+                <label for="username" class="block text-slate-700 mb-2">Nama Pengguna / Email</label>
+                <input type="text" id="username" name="username" autocomplete="username" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="contoh: Andi atau andi@mail.com">
+                <p id="username-help" class="mt-1 text-xs text-slate-500">Minimal 3 karakter.</p>
+            </div>
+            <div>
+                <label for="password" class="block text-slate-700 mb-2">Kata Sandi</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" required autocomplete="new-password"
+                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    minlength="6"
+                    placeholder="Masukkan kata sandi">
+
+                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 px-3 text-slate-400 hover:text-slate-600" aria-label="Tampilkan/sembunyikan kata sandi">
+                            <i class="far fa-eye"></i>
+                    </button>
+                </div>
+            <p class="mt-1 text-xs text-slate-500">Minimal 6 karakter.</p>
+            </div>
+
+            <div>
+                <label for="konfirmasi_kata_sandi" class="block text-slate-700 mb-1">
+                    Konfirmasi Kata Sandi
+                </label>
+                <input type="password" id="konfirmasi_kata_sandi" name="konfirmasi_kata_sandi" required
+                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        minlength="6"
+                        autocomplete="new-password"
+                        placeholder="Ulangi kata sandi">
+            </div>
+
+            <div>
+                <button type="submit"
+                        id="btn-submit" 
+                        class="w-full bg-green-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-green-700 transition"><i class="fas fa-user-plus text-white mr-1"></i> Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            const form     = document.getElementById('form-register');
+            const msgEl    = document.getElementById('msg');
+            const btn      = document.getElementById('btn-submit');
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const confirm  = document.getElementById('konfirmasi_kata_sandi');
+            const togglePw = document.getElementById('togglePassword');
+
+            // Toggle show/hide password
+            togglePw?.addEventListener('click', () => {
+                const isPwd = password.type === 'password';
+                password.type = isPwd ? 'text' : 'password';
+                togglePw.innerHTML = isPwd ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
+            });
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                clearMsg();
+
+                const uname = (username.value || '').trim();
+                const pwd   = password.value || '';
+                const conf  = confirm.value || '';
+
+                if (!uname || uname.length < 3) {
+                    showMsg('Nama pengguna minimal 3 karakter.', 'error');
+                    username.focus();
+                    return;
+                }
+                if (!pwd || pwd.length < 6) {
+                    showMsg('Kata sandi minimal 6 karakter.', 'error');
+                    password.focus();
+                    return;
+                }
+                if (pwd !== conf) {
+                    showMsg('Konfirmasi kata sandi tidak cocok.', 'error');
+                    confirm.focus();
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    
+                    body: JSON.stringify({ username: uname, password: pwd })
+                });
+
+                const data = await safeJson(res);
+
+                if (res.ok) {
+                    showMsg('Registrasi berhasil. Mengalihkan ke halaman login…', 'success');
+                    setTimeout(() => { window.location.href = '/login'; }, 1200);
+                } else {
+                    const err = (data && (data.error || data.message)) || 'Registrasi gagal.';
+                    showMsg(err, 'error');
+                }
+                } catch (err) {
+                    console.error(err);
+                    showMsg('Tidak dapat terhubung ke server. Coba lagi.', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            function setLoading(isLoading) {
+                btn.disabled = isLoading;
+                btn.innerHTML = isLoading
+                ? '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...'
+                : '<i class="fas fa-user-plus text-white mr-1"></i> Submit';
+            }
+
+            function showMsg(text, type) {
+                msgEl.textContent = text;
+                msgEl.classList.remove('hidden');
+                msgEl.classList.remove('bg-green-100','text-green-700','border','border-green-300','bg-red-100','text-red-700','border-red-300');
+                msgEl.classList.add('text-sm','text-center','py-2','rounded-md','border');
+                if (type === 'success') {
+                    msgEl.classList.add('bg-green-100','text-green-700','border-green-300');
+                } else {
+                    msgEl.classList.add('bg-red-100','text-red-700','border-red-300');
+                }
+            }
+
+            function clearMsg() {
+                msgEl.textContent = '';
+                msgEl.className = 'hidden text-sm text-center mb-4 py-2 rounded-md';
+            }
+
+            async function safeJson(res) {
+                try { return await res.json(); }
+                catch { return null; }
+            }
+        })();
+    </script>
+{% endblock %}
