@@ -4,6 +4,7 @@ from config import Config
 from app.models import db
 from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity, get_jwt
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -53,7 +54,9 @@ def create_app():
     from app.routes.quiz_api import quiz_bp
     csrf.exempt(quiz_bp)
 
-    from app.routes.weather_api import weather_bp
+    # from app.routes.weather_api import weather_bp
+    # csrf.exempt(weather_bp)
+    from app.routes.openweather_api import weather_bp
     csrf.exempt(weather_bp)
 
     with app.app_context():

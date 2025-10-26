@@ -6,7 +6,7 @@ from .auth_api import api_bp
 from .question_api import question_bp
 from .score_api import score_bp
 from .quiz_api import quiz_bp
-from .weather_api import weather_bp
+from .openweather_api import weather_bp
 from .weather_pages import weather_pages_bp
 
 
