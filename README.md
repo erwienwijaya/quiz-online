@@ -42,13 +42,13 @@ python -m venv venv
 
 ### 🧠 3. Activate the Environment
 
-## macOS / Linux
+macOS / Linux
 
 ```bash
 source ./venv/bin/activate
 ```
 
-## Windows (PowerShell)
+Windows (PowerShell)
 
 ```bash
 venv\Scripts\activate
