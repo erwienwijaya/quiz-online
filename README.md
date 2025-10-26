@@ -11,7 +11,7 @@ The app includes **4 quizzes** that test learners’ understanding of Python fun
 - Simple and responsive UI built with **TailwindCSS**  
 - Powered by **Flask** and **SQLite**  
 - Uses **Font Awesome** for icons  
-- Lightweight and easy to deploy locally or on PythonAnywhere
+- Lightweight and easy to deploy locally
 
 ---
 
