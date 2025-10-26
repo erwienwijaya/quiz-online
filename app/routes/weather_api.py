@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app
 weather_bp = Blueprint("weather_api", __name__, url_prefix="/api/weather")
 
 GEOCODE_URL = "https://api.openweathermap.org/geo/1.0/direct"
-ONECALL_URL = "https://api.openweathermap.org/data/3.0/onecall"  # One Call 3.0
+ONECALL_URL = "https://api.openweathermap.org/data/2.5/forecast"  # One Call 3.0
 # https://api.openweathermap.org/data/2.5/onecall
 
 
