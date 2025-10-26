@@ -1,7 +1,6 @@
 # 🧠 Python Learning Quiz App
 
-An **online quiz application** designed to support **Python learning**.  
-The app includes **4 quizzes** that test learners’ understanding of Python fundamentals in an interactive and engaging way.
+An **online quiz application** designed to support **Python learning**. The app includes **4 quizzes** that test learners’ understanding of Python fundamentals in an interactive and engaging way.
 
 ---
 
