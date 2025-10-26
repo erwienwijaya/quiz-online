@@ -1,6 +1,6 @@
 # 🧠 Python Learning Quiz App
 
-An **online quiz application** designed to support **Python learning**. The app includes **4 quizzes** that test learners’ understanding of Python fundamentals in an interactive and engaging way.
+An **online quiz application** designed to support Python learning through interactive assessments. The app features **four quizzes** that evaluate learners understanding of fundamental Python concepts in an engaging and structured manner. The source code is built following the SOLID principles, ensuring a clean architecture, maintainable codebase, and high scalability for future enhancements.
 
 ---
 
@@ -26,20 +26,20 @@ An **online quiz application** designed to support **Python learning**. The app 
 
 ## ⚙️ Local Installation & Setup
 
-### 🧩 1. Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yourusername/python-quiz-app.git
 cd python-quiz-app
 ```
 
-### 🧱 2. Create a Virtual Environment
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-### 🧠 3. Activate the Environment
+### 3. Activate the Environment
 
 macOS / Linux
 
@@ -53,7 +53,7 @@ Windows (PowerShell)
 venv\Scripts\activate
 ```
 
-### 📦 4. Install Dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -61,7 +61,7 @@ pip install -r requirements.txt
 
 ## ▶️ Run the Application Locally
 
-### 🔧 1. Set Environment Variables
+### 1. Set Environment Variables
 
 macOS / Linux:
 
@@ -79,22 +79,22 @@ set FLASK_APP=run.py
 set FLASK_ENV=development
 ```
 
-### 🚀 2. Run Flask
+### 2. Run Flask
 
 ```bash
 flask run
 ```
 
-### 🌐 3. Open in Browser
+### 3. Open in Browser
 
 ```bash
 http://localhost:5000
 ```
 
-### 📜 License
+### License
 
 This project is open source and available under the MIT License.
 
-### 👨‍💻 Author
+### Author
 
 Developed by Erwien Tjipta Wijaya
