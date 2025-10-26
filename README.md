@@ -60,11 +60,11 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### ▶️ Run the Application Locally
+## ▶️ Run the Application Locally
 
-## 🔧 1. Set Environment Variables
+### 🔧 1. Set Environment Variables
 
-## macOS / Linux:
+macOS / Linux:
 
 ```bash
 export FLASK_DEBUG=1
@@ -72,7 +72,7 @@ export FLASK_APP=run.py
 export FLASK_ENV=development
 ```
 
-## Windows (PowerShell):
+Windows (PowerShell):
 
 ```bash
 set FLASK_DEBUG=1
