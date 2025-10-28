@@ -29,7 +29,7 @@ An **online quiz application** designed to support Python learning through inter
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/python-quiz-app.git
+git clone https://github.com/erwienwijaya/quiz-online.git
 cd python-quiz-app
 ```
 
