@@ -22,7 +22,6 @@ class Config:
     JWT_COOKIE_CSRF_PROTECT = True            # activate CSRF cookie JWT
     JWT_ACCESS_TOKEN_EXPIRES = 60 * 60
 
-    # OPENWWEATHER_API_KEY = "f5692e9aef80ea0b2c5b366927d2f753"
     OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
     OPENWEATHER_COUNTRY_CODE = "ID"
     OPENWEATHER_GEO_URL = "https://api.openweathermap.org/geo/1.0/direct"
