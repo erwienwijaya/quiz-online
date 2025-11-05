@@ -79,6 +79,14 @@ set FLASK_APP=run.py
 set FLASK_ENV=development
 ```
 
+Create .env:
+
+```bash
+FLASK_ENV=development
+FLASK_APP=run.py
+OPENWEATHER_API_KEY=<get_api_key_from_https://openweathermap.org/>
+```
+
 ### 2. Run Flask
 
 ```bash
