@@ -4,13 +4,16 @@ from config import Config
 from app.models import db
 from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity, get_jwt
+from app.extensions.swagger import SwaggerExtension
+
 
 from dotenv import load_dotenv
 load_dotenv()
 
-
+# initialize extensions
 csrf = CSRFProtect()
 jwt = JWTManager()
+swagger = SwaggerExtension()
 
 
 def create_app():
@@ -21,6 +24,7 @@ def create_app():
     db.init_app(app)
     csrf.init_app(app)
     jwt.init_app(app)
+    swagger.init_app(app)
 
     @app.context_processor
     def inject_current_year():
@@ -42,6 +46,9 @@ def create_app():
     from app.routes import register_routes
     register_routes(app)
 
+    # ignore CSRF for API routes
+    # put here all the blueprints for which CSRF should be disabled
+    # -------------------------------------------------------------------
     from app.routes.auth_api import api_bp
     csrf.exempt(api_bp)
 
@@ -54,10 +61,9 @@ def create_app():
     from app.routes.quiz_api import quiz_bp
     csrf.exempt(quiz_bp)
 
-    # from app.routes.weather_api import weather_bp
-    # csrf.exempt(weather_bp)
     from app.routes.openweather_api import weather_bp
     csrf.exempt(weather_bp)
+    # -------------------------------------------------------------------
 
     with app.app_context():
         db.create_all()

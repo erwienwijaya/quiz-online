@@ -42,6 +42,33 @@ class AuthAPI:
         @csrf.exempt
         @api_bp.post("/login")
         def api_login():
+            """
+Login
+---
+tags:
+  - Auth
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          format: password
+          example: only-yourpassword
+responses:
+  200:
+    description: Login berhasil.
+"""
+
             data = request.get_json(silent=True) or request.form or {}
             username = (data.get("username") or "").strip()
             password = data.get("password") or ""
