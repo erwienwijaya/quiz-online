@@ -79,7 +79,7 @@ set FLASK_APP=run.py
 set FLASK_ENV=development
 ```
 
-Create .env:
+Create **.env** files outside folder **app**:
 
 ```bash
 FLASK_ENV=development
