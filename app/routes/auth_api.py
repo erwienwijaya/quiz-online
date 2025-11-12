@@ -39,35 +39,60 @@ class AuthAPI:
             users = [u.to_dict() for u in repo.list_all()]
             return jsonify(users), 200
 
+        @api_bp.get("/users/<int:user_id>")
+        def api_get_user(user_id):
+            user = UserRepository().get_by_id(user_id)
+            if user:
+                return jsonify(user.to_dict()), 200
+            return jsonify({"error": "User not found"}), 404
+
+        @api_bp.put("/users/<int:user_id>")
+        def api_update_user(user_id):
+            data = request.get_json(silent=True)
+            nim = data.get("nim")
+            firstname = data.get("firstname")
+            lastname = data.get("lastname")
+
+            try:
+                user = user_service.update_profile(
+                    user_id=user_id,
+                    nim=nim,
+                    firstname=firstname,
+                    lastname=lastname
+                )
+                return jsonify(user.to_dict()), 200
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
+
         @csrf.exempt
         @api_bp.post("/login")
         def api_login():
             """
-Login
----
-tags:
-  - Auth
-parameters:
-  - in: body
-    name: body
-    required: true
-    schema:
-      type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-          example: admin
-        password:
-          type: string
-          format: password
-          example: only-yourpassword
-responses:
-  200:
-    description: Login berhasil.
-"""
+            Login
+            ---
+            tags:
+            - Auth
+            parameters:
+            - in: body
+                name: body
+                required: true
+                schema:
+                type: object
+                required:
+                    - username
+                    - password
+                properties:
+                    username:
+                    type: string
+                    example: admin
+                    password:
+                    type: string
+                    format: password
+                    example: only-yourpassword
+            responses:
+            200:
+                description: Login berhasil.
+            """
 
             data = request.get_json(silent=True) or request.form or {}
             username = (data.get("username") or "").strip()

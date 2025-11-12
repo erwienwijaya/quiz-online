@@ -16,3 +16,7 @@ class AuthService:
     @staticmethod
     def get_register_page() -> str:
         return AuthRepository.get_register_page()
+
+    @staticmethod
+    def get_profile_page() -> str:
+        return AuthRepository.get_profile_page()

@@ -1,10 +1,10 @@
 <script>
-  window.addEventListener("scroll", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     const nav = document.querySelector("nav");
-    if (window.scrollY > 10) {
-      nav.classList.add("shadow-md");
-    } else {
-      nav.classList.remove("shadow-md");
-    }
+    if (!nav) return;
+
+    window.addEventListener("scroll", () => {
+      nav.classList.toggle("shadow-md", window.scrollY > 10);
+    });
   });
 </script>

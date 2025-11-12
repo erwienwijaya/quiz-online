@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Quiz Online - Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-800">Dashboard Mahasiswa</h2>
+        <p class="text-slate-500 text-sm">Selamat datang di dashboard quiz online.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-blue-100 p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-300">
+        <h3 class="text-lg font-semibold text-slate-800 mb-2">Total Quiz</h3>
+
+        <span><i class="fas text-3xl fa-tasks mr-4 text-blue-600"></i></span>
+        <span class="text-3xl font-bold text-blue-600">4</span>
+        </div>
+        <div class="bg-green-100 p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-300">
+        <h3 class="text-lg font-semibold text-slate-800 mb-2">Quiz Selesai</h3>
+        <span><i class="fas text-3xl fa-check-circle mr-4 text-green-600"></i></span>
+        <span class="text-3xl font-bold text-green-600">2</span>
+        </div>
+        <div class="bg-yellow-100 p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-300">
+        <h3 class="text-lg font-semibold text-slate-800 mb-2">Skor Tertinggi</h3>
+        <span><i class="fas text-3xl fa-star mr-4 text-yellow-600"></i></span>
+        <span class="text-3xl font-bold text-yellow-600">85</span>
+        </div>
+    </div>
+
+    <!-- TABEL DETAIL QUIZ -->
+    <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow mt-6">
+    <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-xl font-semibold text-slate-800">Daftar Quiz</h3>
+        <p class="text-sm text-slate-500">Informasi quiz yang sudah dan akan dilaksanakan</p>
+    </div>
+
+    <!-- responsive table wrapper -->
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse">
+        <thead>
+            <tr class="text-left text-sm text-slate-600 border-b">
+            <th class="py-3 px-4">#</th>
+            <th class="py-3 px-4">Judul Quiz</th>
+            <th class="py-3 px-4">Tanggal</th>
+            <th class="py-3 px-4">Durasi</th>
+            <th class="py-3 px-4">Status</th>
+            <th class="py-3 px-4">Aksi</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {%- if quizzes %}
+            {%- for q in quizzes %}
+                <tr class="odd:bg-white even:bg-slate-50">
+                <td class="py-3 px-4 align-top text-sm text-slate-700">{{ loop.index }}</td>
+
+                <td class="py-3 px-4 align-top">
+                    <div class="font-medium text-slate-800">{{ q.title }}</div>
+                    {%- if q.description %}
+                    <div class="text-xs text-slate-500 mt-1 line-clamp-2">{{ q.description }}</div>
+                    {%- endif %}
+                </td>
+
+                <td class="py-3 px-4 align-top text-sm text-slate-700">
+                    {# format tanggal sesuai kebutuhan, contoh: 2025-11-12 -> gunakan filter datetime jika ada #}
+                    {{ q.date | default('-') }}<br>
+                    <span class="text-xs text-slate-500">{{ q.time | default('') }}</span>
+                </td>
+
+                <td class="py-3 px-4 align-top text-sm text-slate-700">
+                    {{ q.duration or '-' }}
+                </td>
+
+                <td class="py-3 px-4 align-top text-sm">
+                    {%- if q.status in ['done', 'completed', True] %}
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                        Done / sudah selesai
+                    </span>
+                    {%- else %}
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                        Pending / belum dilakukan
+                    </span>
+                    {%- endif %}
+                </td>
+
+                <td class="py-3 px-4 align-top text-sm">
+                    {%- if q.status in ['done', 'completed', True] %}
+                    <!-- jika sudah selesai, mungkin tunjukkan detail atau lihat hasil -->
+                    <a href=""
+                        class="inline-block px-3 py-1 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition text-sm">
+                        Lihat Hasil
+                    </a>
+                    {%- else %}
+                    <!-- tombol untuk memulai quiz (sesuaikan endpoint) -->
+                    <a href=""
+                        class="inline-block px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition text-sm">
+                        Mulai Quiz
+                    </a>
+                    {%- endif %}
+                </td>
+                </tr>
+            {%- endfor %}
+            {%- else %}
+            <tr>
+                <td colspan="6" class="py-6 px-4 text-center text-slate-500">
+                Belum ada data quiz.
+                </td>
+            </tr>
+            {%- endif %}
+        </tbody>
+        </table>
+    </div>
+    </div>
+
+</div>
+{% endblock %}  
+

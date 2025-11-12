@@ -16,3 +16,7 @@ class AuthPages:
         @pages_bp.get("/register")
         def register_page():
             return AuthService.get_register_page()
+
+        @pages_bp.get("/profile")
+        def profile_page():
+            return AuthService.get_profile_page()

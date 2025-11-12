@@ -18,3 +18,20 @@ class UserRepository:
     def get_by_id(self, user_id: int):
         from app.models.user import User
         return User.query.get(user_id)
+
+    def update_profile(self, user_id: int, nim: str, firstname: str, lastname: str) -> Optional[User]:
+        user = self.get_by_id(user_id)
+        if user:
+            user.nim = nim
+            user.firstname = firstname
+            user.lastname = lastname
+            db.session.commit()
+        return user
+
+    def delete(self, user_id: int) -> bool:
+        user = self.get_by_id(user_id)
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return True
+        return False

@@ -15,6 +15,10 @@ class AuthRepository:
     def get_register_page() -> str:
         return render_template("auth/register.html")
 
+    @staticmethod
+    def get_profile_page() -> str:
+        return render_template("auth/profile_user.html")
+
     def authenticate(self, username: str, password: str):
         user = self.user_repo.get_by_username((username).strip())
         if not user:

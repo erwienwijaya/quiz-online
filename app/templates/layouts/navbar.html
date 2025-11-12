@@ -10,9 +10,9 @@
       <!-- Menu center -->
         <div class="flex items-center space-x-4">
           {% if current_user %}
-            <a href="{{ url_for('leaderboard_page') }}"
+            <a href="{{ url_for('dashboard_pages.dashboard_page') }}"
               class="px-4 py-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition">
-              <i class="fa-solid fa-trophy mr-1"></i>Leaderboard
+              <i class="fa-solid fa-chart-line mr-1"></i>Dashboard
             </a>
             <a href="{{ url_for('quiz_page') }}"
               class="px-4 py-2 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition">
@@ -26,6 +26,36 @@
       <div class="flex items-center space-x-4">
           {% if current_user %}
             <span class="text-slate-600 hidden sm:inline">Hi, {{ current_user.username }}</span>
+            <div class="flex-1">
+              <div class="relative group">
+                  <div
+                      class="text-slate-600 hover:text-blue-600 
+                            transition-transform duration-300 hover:scale-125 cursor-pointer"
+                  >
+                    <a href="{{ url_for('profile_page') }}">
+                      <i class="fas fa-user-circle text-xl"></i>
+                    </a>
+                  </div>
+
+                  <!-- Tooltip -->
+                  <div
+                   class="absolute left-1/2 transform -translate-x-1/2 mt-3
+                          bg-gray-800 text-white text-sm px-3 py-1 rounded-md
+                          opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                          whitespace-nowrap"
+                  >
+                    Profil Mahasiswa
+
+                     <div
+                        class="absolute -top-1 left-[calc(50%-0px)] 
+                              w-0 h-0 border-l-6 border-r-6 border-b-6 
+                              border-l-transparent border-r-transparent border-b-gray-800"
+                      ></div>
+
+                  </div>
+              </div>
+
+            </div>
             <button id="btn-logout"
                     class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
               <i class="fa-solid fa-power-off mr-1"></i>Logout

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Quiz Online - Profile{% endblock %}
+
+{% block content %}
+ <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow transition-all duration-500">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-slate-800">Informasi Mahasiswa</h2>
+      <p class="text-slate-500 text-sm">Biodata Mahasiswa</p>
+    </div>
+
+    <div class="overflow-x-auto">
+      {% if current_user %}
+          <!-- Spinner Loading -->
+          <div id="profile-loading" class="flex items-center justify-center mb-4 hidden">
+            <svg class="animate-spin h-6 w-6 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span class="text-slate-500 text-sm">Memuat data...</span>
+          </div>
+
+          <!-- Profil View -->
+          <div id="profile-view" class="text-slate-700 flex flex-col md:flex-row items-center md:items-start gap-6">
+            <!-- Foto Profil -->
+            <div class="w-40 h-40 flex-shrink-0">
+              <div
+                class="w-40 h-40 bg-slate-100 border border-slate-200 rounded-md flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-user text-slate-400 text-6xl"></i>
+              </div>
+            </div>
+    
+            <div id="profile-view" class="space-y-3 text-slate-700 w-full">  
+                <div class="flex justify-between items-center border-b pb-2">
+                  <span class="font-semibold text-slate-600">No. Induk Mahasiswa</span>
+                  <span class="font-medium italic" id="nim-view">{{ current_user.nim | default("-") }}</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                  <span class="font-semibold text-slate-600">Nama Depan</span>
+                  <span class="font-medium" id="firstname-view">{{ current_user.firstname | default("-") }}</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                  <span class="font-semibold text-slate-600">Nama Belakang</span>
+                  <span class="font-medium italic" id="lastname-view">{{ current_user.lastname | default("-") }}</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                  <span class="font-semibold text-slate-600">Username / Email</span>
+                  <span class="font-medium italic text-blue-600" id="username-view">{{ current_user.username | default("-") }}</span>
+                </div>
+              </div>
+          </div>
+
+          <!-- Form edit tersembunyi -->
+          <form id="edit-form" class="hidden mt-4 space-y-4">
+            <div>
+              <label for="nim" class="block text-slate-700 mb-2">No. Induk Mahasiswa</label>
+              <input type="text" id="nim" name="nim"
+                value="{{ current_user.nim | default('') }}"
+                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+              <label for="firstname" class="block text-slate-700 mb-2">Nama Depan</label>
+              <input type="text" id="firstname" name="firstname"
+                value="{{ current_user.firstname | default('') }}"
+                class="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label for="lastname" class="block text-slate-700 mb-2">Nama Belakang</label>
+              <input type="text" id="lastname" name="lastname"
+                value="{{ current_user.lastname | default('') }}"
+                class="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
+            <div class="flex justify-center gap-4 mt-6">
+              <button type="button" id="cancel-edit"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-gray-600 transition">
+                <i class="fas fa-ban"></i> Batal
+              </button>
+              <button type="submit"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-green-700 transition">
+                <i class="fas fa-check"></i> Simpan Perubahan
+              </button>
+            </div>
+          </form>
+
+      {% else %}
+        <p class="text-red-500">Tidak ada data pengguna yang ditemukan.</p>
+      {% endif %}
+      <div class="flex justify-center gap-4 mt-6">
+          <button id="btn-back"
+            onclick="window.history.back()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+            <i class="fas fa-arrow-left mr-1"></i> Kembali
+          </button>
+          <button id="btn-edit"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
+            <i class="fas fa-user-edit mr-1"></i> Edit Profil
+          </button>
+        </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const USER_DETAIL_URL = "{{ url_for('auth_api.api_get_user', user_id=current_user.id) }}";
+    const UPDATE_URL = "{{ url_for('auth_api.api_update_user', user_id=current_user.id) }}";
+</script>
+
+<script>
+ $(function () {
+    const $loading = $("#profile-loading");
+    const $view = $("#profile-view");
+
+    function setOrDash(v) {
+      if (v === null || v === undefined) return "-";
+      const s = String(v).trim();
+      return s.length ? s : "-";
+    }
+
+    function renderProfile(data) {
+      $("#nim-view").text(setOrDash(data.nim));
+      $("#firstname-view").text(setOrDash(data.firstname));
+      $("#lastname-view").text(setOrDash(data.lastname));
+      $("#username-view").text(setOrDash(data.username));
+    }
+
+    function loadProfile() {
+      // tampilkan spinner
+      $loading.removeClass("hidden").hide().fadeIn(200);
+      $view.css("opacity", "0.4"); // beri efek blur halus
+
+      $.ajax({
+        url: USER_DETAIL_URL,
+        method: "GET",
+        dataType: "json",
+        success: function (resp, status, xhr) {
+          const ct = xhr.getResponseHeader("Content-Type") || "";
+          if (!ct.includes("application/json")) {
+            console.warn("Respon bukan JSON (kemungkinan redirect).");
+            return;
+          }
+          renderProfile(resp);
+        },
+        error: function (xhr) {
+          console.error("Gagal memuat profil:", xhr.status, xhr.responseText);
+          $("#nim-view, #firstname-view, #lastname-view, #username-view").text("-");
+        },
+        complete: function () {
+          // sembunyikan spinner
+          $loading.fadeOut(300);
+          $view.css("opacity", "1");
+        }
+      });
+    }
+
+    // Muat profil setelah halaman siap
+    loadProfile();
+    window.reloadProfileView = loadProfile;
+  });
+</script>
+
+
+<script>
+$(document).ready(function () {
+  $("#btn-edit").click(function () {
+     $.getJSON(USER_DETAIL_URL)
+    .done(function (u) {
+      $("#nim").val(u.nim || "");
+      $("#firstname").val(u.firstname || "");
+      $("#lastname").val(u.lastname || "");
+      $("#profile-view").hide();
+      $("#edit-form").fadeIn(300);
+      $("#btn-edit, #btn-back").hide();
+    })
+    .fail(function (xhr) {
+      alert("Gagal memuat data profil.");
+      console.error(xhr.responseText || xhr.statusText);
+    });
+  });
+
+  // Click "Cancel" button → hide form, show profile view again
+  $("#cancel-edit").click(function () {
+    $("#edit-form").hide();
+    $("#profile-view").fadeIn(300);
+    $("#btn-edit").show();
+    $("#btn-back").show();
+  });
+
+  // (Optional) Handle edit form submit (can be connected to Flask route later)
+   $("#edit-form").on("submit", function (e) {
+    e.preventDefault();
+
+    const payload = {
+      nim: $("#nim").val().trim(),
+      firstname: $("#firstname").val().trim(),
+      lastname: $("#lastname").val().trim(),
+    };
+
+    // get CSRF token from meta tag
+    const csrf = $('meta[name="csrf-token"]').attr('content');
+
+  
+    $.ajax({
+      url: UPDATE_URL,
+      method: "PUT",
+      contentType: "application/json",
+      data: JSON.stringify(payload),
+      headers: csrf ? { "X-CSRFToken": csrf } : {},  // hapus baris ini jika tidak pakai CSRF
+      success: function (resp) {
+        // Update tampilan (mode view) sesuai response dari API
+        $("#nim-view").text(resp.nim || "-");
+        $("#firstname-view").text(resp.firstname || "-");
+        $("#lastname-view").text(resp.lastname || "-");
+
+    
+        $("#edit-form").hide();
+        $("#profile-view").fadeIn(200);
+        $("#btn-edit").show();
+        $("#btn-back").show();
+
+        alert("Profil berhasil diperbarui.");
+      },
+      error: function (xhr) {
+        let msg = "Gagal menyimpan.";
+        try { msg = (xhr.responseJSON && xhr.responseJSON.error) || msg; } catch(_) {}
+        alert(msg);
+      },
+    });
+  });
+});
+</script>
+{% endblock %}

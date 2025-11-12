@@ -1,5 +1,7 @@
 from flask import Flask
 from datetime import datetime
+
+from flask_migrate import Migrate
 from config import Config
 from app.models import db
 from flask_wtf.csrf import CSRFProtect
@@ -14,6 +16,7 @@ load_dotenv()
 csrf = CSRFProtect()
 jwt = JWTManager()
 swagger = SwaggerExtension()
+migrate = Migrate()
 
 
 def create_app():
@@ -22,6 +25,8 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+    migrate.init_app(app, db)
+
     csrf.init_app(app)
     jwt.init_app(app)
     swagger.init_app(app)

@@ -92,10 +92,8 @@
     setLoading(true);
 
     try {
-      // siapkan headers lebih dulu
       const headers = { 'Content-Type': 'application/json' };
-
-      // Jika ada cookie CSRF JWT lama, sertakan headernya (menghindari 422)
+    
       const csrf = getCookie('csrf_access_token');
       if (csrf) headers['X-CSRF-TOKEN'] = csrf;
 
@@ -111,16 +109,17 @@
       if (res.ok) {
         showMsg('Login berhasil. Mengalihkan...', 'success');
 
-        // contoh validasi cepat token
+        // example of quick token validation
         const me = await fetch('/api/me', { credentials: 'same-origin' });
         if (me.ok) {
-          setTimeout(() => window.location.href = '/', 800);
+          setTimeout(() => window.location.href = '/dashboard', 800);
         } else {
           showMsg('Login berhasil, tapi gagal mengambil profil.', 'error');
           setLoading(false);
         }
       } else {
-        // tampilkan pesan dari backend (Flask-JWT-Extended sering pakai 'msg')
+        
+        // showMsg(data.error || data.msg || 'Login gagal.', 'error');
         showMsg(data.error || data.msg || 'Login gagal.', 'error');
         setLoading(false);
       }
@@ -131,7 +130,7 @@
     }
   });
 
-  // opsional: submit dengan Enter saat fokus di password
+  // optional: submit with Enter while focused on password
   password.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') form.requestSubmit();
   });
